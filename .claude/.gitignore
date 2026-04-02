@@ -1,0 +1,9 @@
+settings.local.json
+*.local.json
+.session-marker
+.orphan-log
+memory/scratch/*
+!memory/scratch/.gitkeep
+workflows/scratch/*
+!workflows/scratch/.gitkeep
+skills/

@@ -1,0 +1,65 @@
+---
+description: "TEMPLATE -- Copy to domain-{name}.md and fill in your project's domain rules"
+globs: []
+---
+
+# {DOMAIN_NAME} Domain
+
+> Copy this file to `domain-{name}.md` (e.g., `domain-calculations.md`, `domain-billing.md`)
+> and fill in each section with your project's specific domain rules.
+> Remove this instruction block when done.
+
+## Domain Overview
+
+{Brief description of what this domain covers and why it matters.}
+
+## Key Invariants (NEVER violate without updating INTENT.md)
+
+{Rules that must ALWAYS hold true. If any of these are violated, the system is in an invalid state.}
+
+- {invariant 1: e.g., "Costs always flow up -- parent values are aggregations of children, never independent"}
+- {invariant 2: e.g., "Calculated fields cannot be manually overridden"}
+- {invariant 3: e.g., "Items are always leaf nodes -- they cannot have children"}
+
+## Calculation / Logic Order
+
+{The sequence in which operations must execute. Order matters -- changing it breaks results.}
+
+1. {step 1: e.g., "Resolve parameters from project_parameters table"}
+2. {step 2: e.g., "Evaluate formulas in qty and cost fields"}
+3. {step 3: e.g., "Calculate item-level: subtotal -> contingency -> overhead -> total"}
+4. {step 4: e.g., "Roll up to parents: SUM children's dollar amounts"}
+5. {step 5: e.g., "Compute grand total from root-level nodes"}
+
+## Cross-Feature Dependencies
+
+{How this domain interacts with other features. Reference contracts where they exist.}
+
+| This Domain | Depends On | Contract | Nature of Dependency |
+|-------------|-----------|----------|---------------------|
+| {domain} | {other feature} | `contracts/{name}.contract.md` | {what it needs and why} |
+| {domain} | {other feature} | `contracts/{name}.contract.md` | {what it needs and why} |
+
+## Key Files
+
+{The files that implement this domain. Keep this table current -- it is the quickest way to find relevant code.}
+
+| File | Responsibility | Lines (approx) |
+|------|---------------|-----------------|
+| {path/to/file} | {what it does} | {~NNN} |
+| {path/to/file} | {what it does} | {~NNN} |
+| {path/to/file} | {what it does} | {~NNN} |
+
+## Testing
+
+{How to verify domain logic is correct.}
+
+- {e.g., "engine.test.ts has existing tests -- always add tests for new calculation logic"}
+- {e.g., "Test edge cases: zero values, negative numbers, missing parameters, deeply nested structures"}
+
+## Common Pitfalls
+
+{Mistakes that have been made before or are easy to make. Save future sessions the debugging time.}
+
+- {pitfall 1: e.g., "Overhead compounds on contingency -- this is intentional, see INTENT.md"}
+- {pitfall 2: e.g., "Circular formula references must be detected and rejected at parse time"}

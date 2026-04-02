@@ -1,0 +1,3 @@
+# Append-only memory files: use union merge to prevent conflicts
+.claude/memory/index.md merge=union
+.claude/memory/sessions/*.md merge=union
