@@ -31,17 +31,24 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-md">
-        <h1 className="mb-6 text-center text-2xl font-bold text-gray-900">Sign In</h1>
+    <div className="flex min-h-screen items-center justify-center bg-[var(--color-bg-secondary)]">
+      <div className="w-full max-w-md border border-[var(--color-border)] bg-[var(--color-surface)] p-[var(--space-8)]">
+        <h1 className="mb-[var(--space-6)] text-center text-[var(--text-2xl)] font-[var(--font-bold)] text-[var(--color-text-primary)]">
+          Sign In
+        </h1>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-[var(--space-4)]">
           {error && (
-            <div className="rounded-md bg-red-50 p-3 text-sm text-red-700">{error}</div>
+            <div className="bg-[var(--color-error-bg)] p-[var(--space-3)] text-[var(--text-sm)] text-[var(--color-error)]">
+              {error}
+            </div>
           )}
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="email"
+              className="block text-[var(--text-sm)] font-[var(--font-medium)] text-[var(--color-text-secondary)]"
+            >
               Email
             </label>
             <input
@@ -50,12 +57,15 @@ export default function SignInPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+              className="mt-[var(--space-1)] block w-full border border-[var(--color-border)] bg-[var(--color-surface)] px-[var(--space-3)] py-[var(--space-2)] text-[var(--color-text-primary)] focus:border-[var(--color-border-focus)] focus:outline-none"
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="password"
+              className="block text-[var(--text-sm)] font-[var(--font-medium)] text-[var(--color-text-secondary)]"
+            >
               Password
             </label>
             <input
@@ -64,22 +74,25 @@ export default function SignInPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+              className="mt-[var(--space-1)] block w-full border border-[var(--color-border)] bg-[var(--color-surface)] px-[var(--space-3)] py-[var(--space-2)] text-[var(--color-text-primary)] focus:border-[var(--color-border-focus)] focus:outline-none"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none disabled:opacity-50"
+            className="w-full rounded-full bg-[var(--color-interactive)] px-[var(--space-4)] py-[var(--space-2)] text-[var(--color-interactive-text)] transition-[background] duration-[var(--transition-fast)] hover:bg-[var(--color-interactive-hover)] focus:outline-none disabled:opacity-50"
           >
             {loading ? "Signing in..." : "Sign In"}
           </button>
         </form>
 
-        <p className="mt-4 text-center text-sm text-gray-600">
+        <p className="mt-[var(--space-4)] text-center text-[var(--text-sm)] text-[var(--color-text-secondary)]">
           Don&apos;t have an account?{" "}
-          <Link href="/sign-up" className="text-blue-600 hover:underline">
+          <Link
+            href="/sign-up"
+            className="font-[var(--font-medium)] text-[var(--color-text-link)] underline"
+          >
             Sign Up
           </Link>
         </p>

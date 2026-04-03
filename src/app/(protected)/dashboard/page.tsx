@@ -3,21 +3,31 @@ import Link from "next/link";
 export default function DashboardPage() {
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">Dashboard</h1>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <h1 className="mb-[var(--space-6)] text-[var(--text-2xl)] font-[var(--font-bold)] text-[var(--color-text-primary)]">
+        Dashboard
+      </h1>
+      <div className="grid gap-[var(--space-4)] sm:grid-cols-2 lg:grid-cols-3">
         <Link
           href="/projects"
-          className="rounded-lg border bg-white p-6 shadow-sm transition hover:shadow-md"
+          className="border border-[var(--color-border)] bg-[var(--color-surface)] p-[var(--space-6)] transition-[background] duration-[var(--transition-fast)] hover:bg-[var(--color-surface-hover)]"
         >
-          <h3 className="text-lg font-semibold text-gray-900">Projects</h3>
-          <p className="mt-2 text-sm text-gray-600">Manage your construction projects</p>
+          <h3 className="text-[var(--text-lg)] font-[var(--font-semibold)] text-[var(--color-text-primary)]">
+            Projects
+          </h3>
+          <p className="mt-[var(--space-2)] text-[var(--text-sm)] text-[var(--color-text-secondary)]">
+            Manage your construction projects
+          </p>
         </Link>
         <Link
           href="/settings"
-          className="rounded-lg border bg-white p-6 shadow-sm transition hover:shadow-md"
+          className="border border-[var(--color-border)] bg-[var(--color-surface)] p-[var(--space-6)] transition-[background] duration-[var(--transition-fast)] hover:bg-[var(--color-surface-hover)]"
         >
-          <h3 className="text-lg font-semibold text-gray-900">Settings</h3>
-          <p className="mt-2 text-sm text-gray-600">Configure your account</p>
+          <h3 className="text-[var(--text-lg)] font-[var(--font-semibold)] text-[var(--color-text-primary)]">
+            Settings
+          </h3>
+          <p className="mt-[var(--space-2)] text-[var(--text-sm)] text-[var(--color-text-secondary)]">
+            Configure your account
+          </p>
         </Link>
       </div>
     </div>

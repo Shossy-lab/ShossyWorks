@@ -17,11 +17,18 @@ export default async function ProtectedLayout({ children }: { children: React.Re
     <div className="flex h-screen">
       <Sidebar />
       <div className="flex flex-1 flex-col overflow-hidden">
-        <header className="flex h-14 items-center justify-between border-b bg-white px-6">
-          <h2 className="text-lg font-semibold text-gray-900">ShossyWorks</h2>
+        <header
+          className="flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface)] px-[var(--space-6)]"
+          style={{ height: "var(--header-height)" }}
+        >
+          <h2 className="text-[var(--text-lg)] font-[var(--font-semibold)] text-[var(--color-text-primary)]">
+            ShossyWorks
+          </h2>
           <UserMenu email={user.email ?? ""} />
         </header>
-        <main className="flex-1 overflow-y-auto bg-gray-50 p-6">{children}</main>
+        <main className="flex-1 overflow-y-auto bg-[var(--color-bg-secondary)] p-[var(--space-6)]">
+          {children}
+        </main>
       </div>
     </div>
   );

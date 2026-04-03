@@ -1,26 +1,101 @@
 @import "tailwindcss";
 
+/* ── Design Tokens ─────────────────────────────────────────────── */
+/* Source of truth: DESIGN-SYSTEM.md                                */
+/* NEVER hardcode values in components — always reference tokens.   */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  /* ── Background ──────────────────────────────────────────────── */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f5f5f5;
+  --color-bg-tertiary: #e5e5e5;
+  --color-bg-inverse: #0a0a0a;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* ── Surface (cards, panels) ─────────────────────────────────── */
+  --color-surface: #ffffff;
+  --color-surface-hover: #fafafa;
+  --color-surface-active: #f5f5f5;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* ── Border ──────────────────────────────────────────────────── */
+  --color-border: #e5e5e5;
+  --color-border-strong: #d4d4d4;
+  --color-border-focus: #0a0a0a;
+
+  /* ── Text ────────────────────────────────────────────────────── */
+  --color-text-primary: #0a0a0a;
+  --color-text-secondary: #525252;
+  --color-text-tertiary: #a3a3a3;
+  --color-text-inverse: #fafafa;
+  --color-text-link: #0a0a0a;
+
+  /* ── Interactive ─────────────────────────────────────────────── */
+  --color-interactive: #0a0a0a;
+  --color-interactive-hover: #262626;
+  --color-interactive-text: #fafafa;
+
+  /* ── Semantic ────────────────────────────────────────────────── */
+  --color-success: #16a34a;
+  --color-warning: #ca8a04;
+  --color-error: #dc2626;
+  --color-info: #2563eb;
+
+  --color-success-bg: #f0fdf4;
+  --color-warning-bg: #fefce8;
+  --color-error-bg: #fef2f2;
+  --color-info-bg: #eff6ff;
+
+  /* ── Spacing ─────────────────────────────────────────────────── */
+  --space-0: 0;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /* ── Typography ──────────────────────────────────────────────── */
+  --font-family: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+
+  /* ── Borders & Shadows ───────────────────────────────────────── */
+  --radius-none: 0;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.04);
+
+  /* ── Layout ──────────────────────────────────────────────────── */
+  --sidebar-width: 14rem;
+  --sidebar-collapsed: 3.5rem;
+  --header-height: 3.5rem;
+  --content-max-width: 80rem;
+
+  /* ── Transitions ─────────────────────────────────────────────── */
+  --transition-fast: 100ms ease;
+  --transition-normal: 200ms ease;
+  --transition-slow: 300ms ease;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  font-family: var(--font-family);
 }

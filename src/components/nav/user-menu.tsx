@@ -14,11 +14,11 @@ export function UserMenu({ email }: { email: string }) {
   }
 
   return (
-    <div className="flex items-center gap-3">
-      <span className="text-sm text-gray-600">{email}</span>
+    <div className="flex items-center gap-[var(--space-3)]">
+      <span className="text-[var(--text-sm)] text-[var(--color-text-secondary)]">{email}</span>
       <button
         onClick={handleSignOut}
-        className="rounded-md px-3 py-1.5 text-sm text-gray-600 transition hover:bg-gray-100"
+        className="rounded-full border border-[var(--color-border)] px-[var(--space-3)] py-[var(--space-1)] text-[var(--text-sm)] text-[var(--color-text-secondary)] transition-[background] duration-[var(--transition-fast)] hover:bg-[var(--color-surface-hover)]"
       >
         Sign Out
       </button>

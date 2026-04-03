@@ -1,6 +1,7 @@
 # ShossyWorks -- Durable Instructions
 
 @import README.md
+@import DESIGN-SYSTEM.md
 
 ## Skills Setup
 

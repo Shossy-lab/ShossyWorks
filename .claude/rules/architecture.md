@@ -100,3 +100,13 @@ Group imports in this order, separated by blank lines:
 - Use path aliases (e.g., `@/`) for all non-relative imports
 - No barrel imports from large packages (import specific paths)
 - No wildcard imports (`import * from ...`)
+
+## Design System (NON-NEGOTIABLE)
+
+All UI styling MUST use design tokens from `DESIGN-SYSTEM.md`. See `.claude/rules/design-system.md` for the complete enforcement rule. Key points:
+
+- **Zero hardcoded styles** — every color, spacing, radius, shadow uses CSS custom properties
+- **Sharp corners** on rectangles/squares — `rounded-none` only
+- **Pill shape** for buttons — `rounded-full` only
+- **No direct Tailwind color classes** — use `var(--color-*)` tokens
+- Before writing ANY UI, read `DESIGN-SYSTEM.md`
