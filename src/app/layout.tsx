@@ -1,18 +1,27 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { SkipLink } from "@/components/shared/skip-link";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
   title: "ShossyWorks",
-  description: "Construction estimating platform",
+  description: "Construction estimating platform by Szostak Build, LLC",
+  openGraph: {
+    title: "ShossyWorks",
+    description: "Construction estimating platform",
+    type: "website",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="h-full">
-      <body className={`${inter.className} min-h-full antialiased`}>{children}</body>
+    <html lang="en" className={`${inter.variable} h-full`}>
+      <body className="min-h-full font-sans antialiased">
+        <SkipLink />
+        <main id="main-content">{children}</main>
+      </body>
     </html>
   );
 }

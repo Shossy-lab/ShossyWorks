@@ -84,11 +84,13 @@ export default function SignUpPage() {
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-[var(--space-4)]">
-          {error && (
-            <div className="bg-[var(--color-error-bg)] p-[var(--space-3)] text-sm text-[var(--color-error)]">
-              {error}
-            </div>
-          )}
+          <div role="alert" aria-live="assertive">
+            {error && (
+              <p className="bg-[var(--color-error-bg)] p-[var(--space-3)] text-sm text-[var(--color-error)]">
+                {error}
+              </p>
+            )}
+          </div>
 
           <div>
             <label
@@ -103,7 +105,8 @@ export default function SignUpPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="mt-[var(--space-1)] block w-full border border-[var(--color-border)] bg-[var(--color-surface)] px-[var(--space-3)] py-[var(--space-2)] text-[var(--color-text-primary)] focus:border-[var(--color-border-focus)] focus:outline-none"
+              autoComplete="email"
+              className="mt-[var(--space-1)] block w-full border border-[var(--color-border)] bg-[var(--color-surface)] px-[var(--space-3)] py-[var(--space-2)] text-[var(--color-text-primary)] focus:border-[var(--color-border-focus)] focus-visible:outline-2 focus-visible:outline-[var(--color-border-focus)] focus-visible:outline-offset-2"
             />
           </div>
 
@@ -121,14 +124,15 @@ export default function SignUpPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
-              className="mt-[var(--space-1)] block w-full border border-[var(--color-border)] bg-[var(--color-surface)] px-[var(--space-3)] py-[var(--space-2)] text-[var(--color-text-primary)] focus:border-[var(--color-border-focus)] focus:outline-none"
+              autoComplete="new-password"
+              className="mt-[var(--space-1)] block w-full border border-[var(--color-border)] bg-[var(--color-surface)] px-[var(--space-3)] py-[var(--space-2)] text-[var(--color-text-primary)] focus:border-[var(--color-border-focus)] focus-visible:outline-2 focus-visible:outline-[var(--color-border-focus)] focus-visible:outline-offset-2"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-full bg-[var(--color-interactive)] px-[var(--space-4)] py-[var(--space-2)] text-[var(--color-interactive-text)] transition-[background] duration-100 hover:bg-[var(--color-interactive-hover)] focus:outline-none disabled:opacity-50"
+            className="w-full rounded-full bg-[var(--color-interactive)] px-[var(--space-4)] py-[var(--space-2)] text-[var(--color-interactive-text)] transition-[background] duration-100 hover:bg-[var(--color-interactive-hover)] focus-visible:outline-2 focus-visible:outline-[var(--color-border-focus)] focus-visible:outline-offset-2 disabled:opacity-50"
           >
             {loading ? "Creating account..." : "Create Account"}
           </button>
