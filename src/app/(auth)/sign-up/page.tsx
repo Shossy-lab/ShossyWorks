@@ -37,13 +37,13 @@ export default function SignUpPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-[var(--color-bg-secondary)]">
       <div className="w-full max-w-md border border-[var(--color-border)] bg-[var(--color-surface)] p-[var(--space-8)]">
-        <h1 className="mb-[var(--space-6)] text-center text-[var(--text-2xl)] font-[var(--font-bold)] text-[var(--color-text-primary)]">
+        <h1 className="mb-[var(--space-6)] text-center text-2xl font-bold text-[var(--color-text-primary)]">
           Create Account
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-[var(--space-4)]">
           {error && (
-            <div className="bg-[var(--color-error-bg)] p-[var(--space-3)] text-[var(--text-sm)] text-[var(--color-error)]">
+            <div className="bg-[var(--color-error-bg)] p-[var(--space-3)] text-sm text-[var(--color-error)]">
               {error}
             </div>
           )}
@@ -51,7 +51,7 @@ export default function SignUpPage() {
           <div>
             <label
               htmlFor="email"
-              className="block text-[var(--text-sm)] font-[var(--font-medium)] text-[var(--color-text-secondary)]"
+              className="block text-sm font-medium text-[var(--color-text-secondary)]"
             >
               Email
             </label>
@@ -68,7 +68,7 @@ export default function SignUpPage() {
           <div>
             <label
               htmlFor="password"
-              className="block text-[var(--text-sm)] font-[var(--font-medium)] text-[var(--color-text-secondary)]"
+              className="block text-sm font-medium text-[var(--color-text-secondary)]"
             >
               Password
             </label>
@@ -86,17 +86,17 @@ export default function SignUpPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-full bg-[var(--color-interactive)] px-[var(--space-4)] py-[var(--space-2)] text-[var(--color-interactive-text)] transition-[background] duration-[var(--transition-fast)] hover:bg-[var(--color-interactive-hover)] focus:outline-none disabled:opacity-50"
+            className="w-full rounded-full bg-[var(--color-interactive)] px-[var(--space-4)] py-[var(--space-2)] text-[var(--color-interactive-text)] transition-[background] duration-100 hover:bg-[var(--color-interactive-hover)] focus:outline-none disabled:opacity-50"
           >
             {loading ? "Creating account..." : "Create Account"}
           </button>
         </form>
 
-        <p className="mt-[var(--space-4)] text-center text-[var(--text-sm)] text-[var(--color-text-secondary)]">
+        <p className="mt-[var(--space-4)] text-center text-sm text-[var(--color-text-secondary)]">
           Already have an account?{" "}
           <Link
             href="/sign-in"
-            className="font-[var(--font-medium)] text-[var(--color-text-link)] underline"
+            className="font-medium text-[var(--color-text-link)] underline"
           >
             Sign In
           </Link>

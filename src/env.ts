@@ -7,11 +7,11 @@ export const env = createEnv({
 
   server: {
     // Supabase server keys (at least one required)
-    SUPABASE_SERVICE_ROLE_KEY: z.string().min(20).optional(),
+    SUPABASE_SERVICE_ROLE_KEY: z.string().min(20),
     SUPABASE_SECRET_KEY: z.string().min(1).optional(),
 
     // Database connections
-    DATABASE_URL: z.string().startsWith("postgres").optional(),
+    DATABASE_URL: z.string().startsWith("postgres"),
     DIRECT_DATABASE_URL: z.string().startsWith("postgres").optional(),
     SUPABASE_DB_PASSWORD: z.string().min(1).optional(),
     SUPABASE_PROJECT_ID: z.string().min(1).optional(),
@@ -40,5 +40,5 @@ export const env = createEnv({
   },
 
   emptyStringAsUndefined: true,
-  skipValidation: !!process.env.SKIP_ENV_VALIDATION,
+  skipValidation: !!process.env.SKIP_ENV_VALIDATION && process.env.NODE_ENV !== "production",
 });

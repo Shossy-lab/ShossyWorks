@@ -15,10 +15,10 @@ export function UserMenu({ email }: { email: string }) {
 
   return (
     <div className="flex items-center gap-[var(--space-3)]">
-      <span className="text-[var(--text-sm)] text-[var(--color-text-secondary)]">{email}</span>
+      <span className="text-sm text-[var(--color-text-secondary)]">{email}</span>
       <button
         onClick={handleSignOut}
-        className="rounded-full border border-[var(--color-border)] px-[var(--space-3)] py-[var(--space-1)] text-[var(--text-sm)] text-[var(--color-text-secondary)] transition-[background] duration-[var(--transition-fast)] hover:bg-[var(--color-surface-hover)]"
+        className="rounded-full border border-[var(--color-border)] px-[var(--space-3)] py-[var(--space-1)] text-sm text-[var(--color-text-secondary)] transition-[background] duration-100 hover:bg-[var(--color-surface-hover)]"
       >
         Sign Out
       </button>

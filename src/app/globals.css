@@ -1,5 +1,38 @@
 @import "tailwindcss";
 
+/* ── Tailwind v4 Theme Registration ───────────────────────────── */
+/* Registers design tokens so Tailwind generates proper utilities.  */
+/* Standard utilities (font-bold, text-sm, duration-100) are built  */
+/* in — only custom tokens need registration here.                  */
+@theme {
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f5f5f5;
+  --color-bg-tertiary: #e5e5e5;
+  --color-bg-inverse: #0a0a0a;
+  --color-surface: #ffffff;
+  --color-surface-hover: #fafafa;
+  --color-surface-active: #f5f5f5;
+  --color-border: #e5e5e5;
+  --color-border-strong: #d4d4d4;
+  --color-border-focus: #0a0a0a;
+  --color-text-primary: #0a0a0a;
+  --color-text-secondary: #525252;
+  --color-text-tertiary: #a3a3a3;
+  --color-text-inverse: #fafafa;
+  --color-text-link: #0a0a0a;
+  --color-interactive: #0a0a0a;
+  --color-interactive-hover: #262626;
+  --color-interactive-text: #fafafa;
+  --color-success: #16a34a;
+  --color-warning: #ca8a04;
+  --color-error: #dc2626;
+  --color-info: #2563eb;
+  --color-success-bg: #f0fdf4;
+  --color-warning-bg: #fefce8;
+  --color-error-bg: #fef2f2;
+  --color-info-bg: #eff6ff;
+}
+
 /* ── Design Tokens ─────────────────────────────────────────────── */
 /* Source of truth: DESIGN-SYSTEM.md                                */
 /* NEVER hardcode values in components — always reference tokens.   */
@@ -89,9 +122,11 @@
   --content-max-width: 80rem;
 
   /* ── Transitions ─────────────────────────────────────────────── */
-  --transition-fast: 100ms ease;
-  --transition-normal: 200ms ease;
-  --transition-slow: 300ms ease;
+  /* Split into duration + easing for Tailwind utility compatibility */
+  --duration-fast: 100ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --ease-default: ease;
 }
 
 body {

@@ -16,24 +16,21 @@ export function Sidebar() {
 
   return (
     <aside
-      className="flex flex-col border-r border-[var(--color-border)] bg-[var(--color-surface)]"
-      style={{
-        width: collapsed ? "var(--sidebar-collapsed)" : "var(--sidebar-width)",
-        transition: `width var(--transition-normal)`,
-      }}
+      className={`flex flex-col border-r border-[var(--color-border)] bg-[var(--color-surface)] transition-[width] duration-200 ${
+        collapsed ? "w-[var(--sidebar-collapsed)]" : "w-[var(--sidebar-width)]"
+      }`}
     >
       <div
-        className="flex items-center justify-between border-b border-[var(--color-border)] px-[var(--space-4)]"
-        style={{ height: "var(--header-height)" }}
+        className="flex h-[var(--header-height)] items-center justify-between border-b border-[var(--color-border)] px-[var(--space-4)]"
       >
         {!collapsed && (
-          <span className="text-[var(--text-lg)] font-[var(--font-bold)] text-[var(--color-text-primary)]">
+          <span className="text-lg font-bold text-[var(--color-text-primary)]">
             SW
           </span>
         )}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="flex h-[var(--space-8)] w-[var(--space-8)] items-center justify-center text-[var(--color-text-secondary)] transition-[background] duration-[var(--transition-fast)] hover:bg-[var(--color-surface-hover)]"
+          className="flex h-[var(--space-8)] w-[var(--space-8)] items-center justify-center text-[var(--color-text-secondary)] transition-[background] duration-100 hover:bg-[var(--color-surface-hover)]"
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {collapsed ? "\u203A" : "\u2039"}
@@ -47,7 +44,7 @@ export function Sidebar() {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className={`flex items-center px-[var(--space-3)] py-[var(--space-2)] text-[var(--text-sm)] font-[var(--font-medium)] transition-[background,border-color] duration-[var(--transition-fast)] ${
+                  className={`flex items-center px-[var(--space-3)] py-[var(--space-2)] text-sm font-medium transition-[background,border-color] duration-100 ${
                     isActive
                       ? "border-l-2 border-[var(--color-text-primary)] bg-[var(--color-surface-active)] text-[var(--color-text-primary)]"
                       : "border-l-2 border-transparent text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)]"

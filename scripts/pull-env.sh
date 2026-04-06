@@ -38,7 +38,6 @@ SECRET_MAP=(
   "supabase-db-password:SUPABASE_DB_PASSWORD"
   "supabase-direct-connection:DATABASE_URL"
   "supabase-project-id:SUPABASE_PROJECT_ID"
-  "supabase-publishable-key:SUPABASE_PUBLISHABLE_KEY"
   "anthropic-api-key:ANTHROPIC_API_KEY"
 )
 

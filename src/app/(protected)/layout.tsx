@@ -18,10 +18,9 @@ export default async function ProtectedLayout({ children }: { children: React.Re
       <Sidebar />
       <div className="flex flex-1 flex-col overflow-hidden">
         <header
-          className="flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface)] px-[var(--space-6)]"
-          style={{ height: "var(--header-height)" }}
+          className="flex h-[var(--header-height)] items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface)] px-[var(--space-6)]"
         >
-          <h2 className="text-[var(--text-lg)] font-[var(--font-semibold)] text-[var(--color-text-primary)]">
+          <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">
             ShossyWorks
           </h2>
           <UserMenu email={user.email ?? ""} />
