@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { getAuthErrorMessage } from "@/lib/auth/error-messages";
 import Link from "next/link";
 
 export default function SignUpPage() {
@@ -10,6 +11,7 @@ export default function SignUpPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
   const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent) {
@@ -17,21 +19,61 @@ export default function SignUpPage() {
     setLoading(true);
     setError(null);
 
-    const supabase = createClient();
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
-    });
+    try {
+      const supabase = createClient();
+      const { data, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+      });
 
-    if (error) {
-      setError(error.message);
+      if (authError) {
+        setError(getAuthErrorMessage(authError));
+        return;
+      }
+
+      // If session exists, email verification is disabled — redirect immediately
+      if (data.session) {
+        router.push("/dashboard");
+        router.refresh();
+        return;
+      }
+
+      // No session means email verification is enabled — show confirmation
+      setShowConfirmation(true);
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
       setLoading(false);
-      return;
     }
+  }
 
-    router.push("/dashboard");
-    router.refresh();
+  if (showConfirmation) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[var(--color-bg-secondary)]">
+        <div className="w-full max-w-md border border-[var(--color-border)] bg-[var(--color-surface)] p-[var(--space-8)]">
+          <h1 className="mb-[var(--space-4)] text-center text-2xl font-bold text-[var(--color-text-primary)]">
+            Check Your Email
+          </h1>
+          <p className="mb-[var(--space-6)] text-center text-sm text-[var(--color-text-secondary)]">
+            We sent a verification link to{" "}
+            <span className="font-medium text-[var(--color-text-primary)]">
+              {email}
+            </span>
+            . Please check your inbox and click the link to verify your account.
+          </p>
+          <p className="text-center text-sm text-[var(--color-text-secondary)]">
+            Already verified?{" "}
+            <Link
+              href="/sign-in"
+              className="font-medium text-[var(--color-text-link)] underline"
+            >
+              Sign In
+            </Link>
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (

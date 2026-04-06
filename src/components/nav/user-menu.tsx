@@ -8,7 +8,15 @@ export function UserMenu({ email }: { email: string }) {
 
   async function handleSignOut() {
     const supabase = createClient();
-    await supabase.auth.signOut();
+    try {
+      const { error } = await supabase.auth.signOut({ scope: 'global' });
+      if (error) {
+        console.error("Sign-out error:", error.message);
+      }
+    } catch (err) {
+      console.error("Sign-out failed:", err);
+    }
+    // Always redirect even on error — user wants to leave
     router.push("/sign-in");
     router.refresh();
   }

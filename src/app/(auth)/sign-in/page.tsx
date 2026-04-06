@@ -1,33 +1,58 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { getAuthErrorMessage } from "@/lib/auth/error-messages";
 import Link from "next/link";
 
+const URL_ERROR_MESSAGES: Record<string, string> = {
+  service_unavailable: "The authentication service is temporarily unavailable. Please try again later.",
+  session_expired: "Your session has expired. Please sign in again.",
+};
+
 export default function SignInPage() {
+  return (
+    <Suspense>
+      <SignInForm />
+    </Suspense>
+  );
+}
+
+function SignInForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const urlError = searchParams.get("error");
+  const urlErrorMessage = urlError ? URL_ERROR_MESSAGES[urlError] ?? "An error occurred. Please try again." : null;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    try {
+      const supabase = createClient();
+      const { error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (error) {
-      setError(error.message);
+      if (authError) {
+        setError(getAuthErrorMessage(authError));
+        return;
+      }
+
+      router.push("/dashboard");
+      router.refresh();
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    router.push("/dashboard");
-    router.refresh();
   }
 
   return (
@@ -38,6 +63,11 @@ export default function SignInPage() {
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-[var(--space-4)]">
+          {urlErrorMessage && (
+            <div className="bg-[var(--color-error-bg)] p-[var(--space-3)] text-sm text-[var(--color-error)]">
+              {urlErrorMessage}
+            </div>
+          )}
           {error && (
             <div className="bg-[var(--color-error-bg)] p-[var(--space-3)] text-sm text-[var(--color-error)]">
               {error}
