@@ -2,6 +2,8 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 import { env } from "@/env";
 
+import type { Database } from "@/lib/types/supabase";
+
 const PUBLIC_ROUTES = ["/sign-in", "/sign-up", "/auth/callback", "/pending-approval"];
 
 function isPublicRoute(pathname: string): boolean {
@@ -17,7 +19,7 @@ export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
   try {
-    const supabase = createServerClient(
+    const supabase = createServerClient<Database>(
       env.NEXT_PUBLIC_SUPABASE_URL,
       env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
       {

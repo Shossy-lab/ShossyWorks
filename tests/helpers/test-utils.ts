@@ -9,19 +9,40 @@ import { createClient } from "@supabase/supabase-js";
 
 import type { ActionResult, ActionError } from "@/lib/types/action-result";
 import type { ErrorCode } from "@/lib/types/action-result";
+import type { Database } from "@/lib/types/supabase";
 
-// ── Supabase admin client (service_role) ────────────────────────
+// ── Supabase clients ────────────────────────────────────────────
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
+/**
+ * Returns a Supabase admin client (service_role) that bypasses RLS.
+ * Used for test data setup and teardown.
+ */
 export function getAdminClient() {
   if (!url || !serviceKey) {
     throw new Error(
       "Missing required env vars: NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY",
     );
   }
-  return createClient(url, serviceKey, {
+  return createClient<Database>(url, serviceKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
+
+/**
+ * Returns a Supabase client using the anon key.
+ * RLS policies apply. No auth context = anon role.
+ */
+export function getAnonClient() {
+  if (!url || !anonKey) {
+    throw new Error(
+      "Missing required env vars: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY",
+    );
+  }
+  return createClient<Database>(url, anonKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 }
@@ -121,6 +142,58 @@ export interface TestNode {
   node_type: string;
   name: string;
   sort_order: number;
+}
+
+/**
+ * Create a single estimate node.
+ * If estimateId is not provided, creates a new test estimate (and project) first.
+ */
+export async function createTestNode(
+  overrides: Partial<{
+    estimate_id: string;
+    parent_id: string | null;
+    node_type: string;
+    name: string;
+    sort_order: number;
+    qty: number;
+    unit_cost: number;
+  }> = {},
+): Promise<TestNode> {
+  const admin = getAdminClient();
+
+  const estimateId =
+    overrides.estimate_id ?? (await createTestEstimate()).id;
+  const nodeType = overrides.node_type ?? "item";
+
+  const { data, error } = await admin
+    .from("estimate_nodes")
+    .insert({
+      estimate_id: estimateId,
+      parent_id: overrides.parent_id ?? null,
+      name: overrides.name ?? `Test Node ${Date.now()}`,
+      node_type: nodeType,
+      sort_order: overrides.sort_order ?? 0,
+    })
+    .select()
+    .single();
+
+  if (error) throw new Error(`createTestNode failed: ${error.message}`);
+
+  // If this is an item node, create the item details row
+  if (nodeType === "item") {
+    await admin.from("node_item_details").insert({
+      node_id: data.id,
+      qty: overrides.qty ?? 1,
+      raw_qty: overrides.qty ?? 1,
+      unit_cost: overrides.unit_cost ?? 10.0,
+      contingency_rate: 0,
+      overhead_rate: 0,
+      waste_factor: 0,
+      bid_type: "estimate",
+    });
+  }
+
+  return data as TestNode;
 }
 
 /**
@@ -344,3 +417,9 @@ export async function cleanupTestProject(projectId: string): Promise<void> {
   const admin = getAdminClient();
   await admin.from("projects").delete().eq("id", projectId);
 }
+
+/**
+ * Alias for cleanupTestProject -- delete test data by project ID.
+ * Cascades to estimates, nodes, details, snapshots, etc.
+ */
+export const cleanupTestData = cleanupTestProject;
