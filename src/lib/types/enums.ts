@@ -147,6 +147,120 @@ export const CLIENT_VISIBILITY_LABELS: Record<ClientVisibility, string> = {
   summary_only: 'Summary Only',
 } as const;
 
+// ── Snapshot Type ──────────────────────────────────────────
+
+export const SNAPSHOT_TYPE = {
+  MILESTONE: 'milestone',
+  CHECKPOINT: 'checkpoint',
+} as const;
+
+export type SnapshotType = (typeof SNAPSHOT_TYPE)[keyof typeof SNAPSHOT_TYPE];
+
+/** All snapshot type values */
+export const SNAPSHOT_TYPE_VALUES: readonly SnapshotType[] = [
+  SNAPSHOT_TYPE.MILESTONE,
+  SNAPSHOT_TYPE.CHECKPOINT,
+] as const;
+
+/** Human-readable labels for UI display */
+export const SNAPSHOT_TYPE_LABELS: Record<SnapshotType, string> = {
+  milestone: 'Milestone',
+  checkpoint: 'Checkpoint',
+} as const;
+
+// ── Option Group Type ──────────────────────────────────────
+
+export const OPTION_GROUP_TYPE = {
+  SELECTION: 'selection',
+  TOGGLE: 'toggle',
+} as const;
+
+export type OptionGroupType = (typeof OPTION_GROUP_TYPE)[keyof typeof OPTION_GROUP_TYPE];
+
+/** All option group type values */
+export const OPTION_GROUP_TYPE_VALUES: readonly OptionGroupType[] = [
+  OPTION_GROUP_TYPE.SELECTION,
+  OPTION_GROUP_TYPE.TOGGLE,
+] as const;
+
+/** Human-readable labels for UI display */
+export const OPTION_GROUP_TYPE_LABELS: Record<OptionGroupType, string> = {
+  selection: 'Selection',
+  toggle: 'Toggle',
+} as const;
+
+// ── Approval Status ────────────────────────────────────────
+
+export const APPROVAL_STATUS = {
+  PENDING: 'pending',
+  APPROVED: 'approved',
+  REJECTED: 'rejected',
+} as const;
+
+export type ApprovalStatus = (typeof APPROVAL_STATUS)[keyof typeof APPROVAL_STATUS];
+
+/** All approval status values */
+export const APPROVAL_STATUS_VALUES: readonly ApprovalStatus[] = [
+  APPROVAL_STATUS.PENDING,
+  APPROVAL_STATUS.APPROVED,
+  APPROVAL_STATUS.REJECTED,
+] as const;
+
+/** Human-readable labels for UI display */
+export const APPROVAL_STATUS_LABELS: Record<ApprovalStatus, string> = {
+  pending: 'Pending',
+  approved: 'Approved',
+  rejected: 'Rejected',
+} as const;
+
+// ── Author Type ────────────────────────────────────────────
+
+export const AUTHOR_TYPE = {
+  USER: 'user',
+  SHARE: 'share',
+} as const;
+
+export type AuthorType = (typeof AUTHOR_TYPE)[keyof typeof AUTHOR_TYPE];
+
+/** All author type values */
+export const AUTHOR_TYPE_VALUES: readonly AuthorType[] = [
+  AUTHOR_TYPE.USER,
+  AUTHOR_TYPE.SHARE,
+] as const;
+
+/** Human-readable labels for UI display */
+export const AUTHOR_TYPE_LABELS: Record<AuthorType, string> = {
+  user: 'User',
+  share: 'Share',
+} as const;
+
+// ── App Role ───────────────────────────────────────────────
+
+export const APP_ROLE = {
+  OWNER: 'owner',
+  EMPLOYEE: 'employee',
+  CLIENT: 'client',
+  PENDING: 'pending',
+} as const;
+
+export type AppRole = (typeof APP_ROLE)[keyof typeof APP_ROLE];
+
+/** All app role values */
+export const APP_ROLE_VALUES: readonly AppRole[] = [
+  APP_ROLE.OWNER,
+  APP_ROLE.EMPLOYEE,
+  APP_ROLE.CLIENT,
+  APP_ROLE.PENDING,
+] as const;
+
+/** Human-readable labels for UI display */
+export const APP_ROLE_LABELS: Record<AppRole, string> = {
+  owner: 'Owner',
+  employee: 'Employee',
+  client: 'Client',
+  pending: 'Pending',
+} as const;
+
 // ── Type Guards ─────────────────────────────────────────────
 
 /** Check if a string is a valid ProjectStatus */
@@ -167,6 +281,31 @@ export function isNodeType(value: string): value is NodeType {
 /** Check if a string is a valid ClientVisibility */
 export function isClientVisibility(value: string): value is ClientVisibility {
   return CLIENT_VISIBILITY_VALUES.includes(value as ClientVisibility);
+}
+
+/** Check if a string is a valid SnapshotType */
+export function isSnapshotType(value: string): value is SnapshotType {
+  return SNAPSHOT_TYPE_VALUES.includes(value as SnapshotType);
+}
+
+/** Check if a string is a valid OptionGroupType */
+export function isOptionGroupType(value: string): value is OptionGroupType {
+  return OPTION_GROUP_TYPE_VALUES.includes(value as OptionGroupType);
+}
+
+/** Check if a string is a valid ApprovalStatus */
+export function isApprovalStatus(value: string): value is ApprovalStatus {
+  return APPROVAL_STATUS_VALUES.includes(value as ApprovalStatus);
+}
+
+/** Check if a string is a valid AuthorType */
+export function isAuthorType(value: string): value is AuthorType {
+  return AUTHOR_TYPE_VALUES.includes(value as AuthorType);
+}
+
+/** Check if a string is a valid AppRole */
+export function isAppRole(value: string): value is AppRole {
+  return APP_ROLE_VALUES.includes(value as AppRole);
 }
 
 // ── Ordinal Helpers ─────────────────────────────────────────

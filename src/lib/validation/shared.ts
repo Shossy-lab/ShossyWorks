@@ -11,6 +11,11 @@ import {
   ESTIMATE_STATUS_VALUES,
   NODE_TYPE_VALUES,
   CLIENT_VISIBILITY_VALUES,
+  SNAPSHOT_TYPE_VALUES,
+  OPTION_GROUP_TYPE_VALUES,
+  APPROVAL_STATUS_VALUES,
+  AUTHOR_TYPE_VALUES,
+  APP_ROLE_VALUES,
 } from "@/lib/types/enums";
 
 // ── Shared primitives ────────────────────────────────────────
@@ -32,27 +37,34 @@ export const paginationSchema = z.object({
   pageSize: z.number().int().min(1).max(100).default(50),
 });
 
+// ── Enum Helper ─────────────────────────────────────────────
+// Converts a readonly string array to a Zod enum schema while
+// preserving literal types. Replaces double-casts through `unknown`.
+
+export function zodEnumFromValues<T extends string>(values: readonly T[]) {
+  return z.enum(values as [T, ...T[]]);
+}
+
 // ── Enums as Zod schemas ─────────────────────────────────────
 // Derived from the application enum const objects in enums.ts.
 
-export const projectStatusSchema = z.enum(
-  PROJECT_STATUS_VALUES as unknown as [string, ...string[]],
-);
+export const projectStatusSchema = zodEnumFromValues(PROJECT_STATUS_VALUES);
 
-export const estimateStatusSchema = z.enum(
-  ESTIMATE_STATUS_VALUES as unknown as [string, ...string[]],
-);
+export const estimateStatusSchema = zodEnumFromValues(ESTIMATE_STATUS_VALUES);
 
-export const nodeTypeSchema = z.enum(
-  NODE_TYPE_VALUES as unknown as [string, ...string[]],
-);
+export const nodeTypeSchema = zodEnumFromValues(NODE_TYPE_VALUES);
 
-export const clientVisibilitySchema = z.enum(
-  CLIENT_VISIBILITY_VALUES as unknown as [string, ...string[]],
-);
+export const clientVisibilitySchema = zodEnumFromValues(CLIENT_VISIBILITY_VALUES);
 
-// Enums not yet in enums.ts — defined inline from DB enum values.
-export const snapshotTypeSchema = z.enum(["milestone", "checkpoint"]);
+export const snapshotTypeSchema = zodEnumFromValues(SNAPSHOT_TYPE_VALUES);
+
+export const optionGroupTypeSchema = zodEnumFromValues(OPTION_GROUP_TYPE_VALUES);
+
+export const approvalStatusSchema = zodEnumFromValues(APPROVAL_STATUS_VALUES);
+
+export const authorTypeSchema = zodEnumFromValues(AUTHOR_TYPE_VALUES);
+
+export const appRoleSchema = zodEnumFromValues(APP_ROLE_VALUES);
 
 export const costTypeSchema = z.enum([
   "material",

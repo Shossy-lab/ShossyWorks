@@ -6,9 +6,8 @@
 // ────────────────────────────────────────────────────────────
 "use server";
 
-import { ok, err, validationError, notFound } from "@/lib/types/action-result";
-import { ERROR_CODE } from "@/lib/types/action-result";
-import { createProjectSchema, updateProjectSchema } from "@/lib/validation/projects";
+import { ok, validationError } from "@/lib/types/action-result";
+import { createProjectSchema, updateProjectSchema, getProjectSchema, deleteProjectSchema } from "@/lib/validation/projects";
 import { formatZodError } from "@/lib/validation/format-error";
 import { PROJECT_STATUS } from "@/lib/types/enums";
 import { getAuthenticatedClient, handleSupabaseError } from "./_shared";
@@ -87,14 +86,15 @@ export async function getProject(
 ): Promise<ActionResult<Project>> {
   const { supabase } = await getAuthenticatedClient();
 
-  if (!id) {
-    return err(ERROR_CODE.VALIDATION_ERROR, "Project ID is required.");
+  const parsed = getProjectSchema.safeParse({ id });
+  if (!parsed.success) {
+    return validationError("Invalid ID format.", formatZodError(parsed.error));
   }
 
   const { data, error } = await supabase
     .from("projects")
     .select("*")
-    .eq("id", id)
+    .eq("id", parsed.data.id)
     .single();
 
   if (error) return handleSupabaseError(error);
@@ -157,14 +157,15 @@ export async function deleteProject(
 ): Promise<ActionResult<Project>> {
   const { supabase } = await getAuthenticatedClient();
 
-  if (!id) {
-    return err(ERROR_CODE.VALIDATION_ERROR, "Project ID is required.");
+  const parsed = deleteProjectSchema.safeParse({ id });
+  if (!parsed.success) {
+    return validationError("Invalid ID format.", formatZodError(parsed.error));
   }
 
   const { data, error } = await supabase
     .from("projects")
     .update({ status: PROJECT_STATUS.ARCHIVED })
-    .eq("id", id)
+    .eq("id", parsed.data.id)
     .select()
     .single();
 

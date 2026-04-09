@@ -44,26 +44,25 @@ function attachDetails(
   const itemMap = new Map(itemDetails.map((d) => [d.node_id, d]));
   const assemblyMap = new Map(assemblyDetails.map((d) => [d.node_id, d]));
 
-  return nodes.map((node) => {
+  return nodes.map((node): NodeWithDetails => {
     if (node.node_type === "item") {
-      return {
-        ...node,
-        node_type: "item" as const,
-        details: itemMap.get(node.id) ?? null,
-      } as NodeWithDetails;
+      const details = itemMap.get(node.id);
+      if (!details) {
+        // Detail row missing for item node — treat as group to avoid
+        // producing an invalid discriminated union member with null details
+        return { ...node, node_type: "group" as const, details: null };
+      }
+      return { ...node, node_type: "item" as const, details };
     }
     if (node.node_type === "assembly") {
-      return {
-        ...node,
-        node_type: "assembly" as const,
-        details: assemblyMap.get(node.id) ?? null,
-      } as NodeWithDetails;
+      const details = assemblyMap.get(node.id);
+      if (!details) {
+        // Detail row missing for assembly node — treat as group
+        return { ...node, node_type: "group" as const, details: null };
+      }
+      return { ...node, node_type: "assembly" as const, details };
     }
-    return {
-      ...node,
-      node_type: "group" as const,
-      details: null,
-    } as NodeWithDetails;
+    return { ...node, node_type: "group" as const, details: null };
   });
 }
 
@@ -107,7 +106,7 @@ export async function createNode(
   // Insert type-specific detail row
   if (v.nodeType === "item") {
     const d = v.details;
-    const { error: detailError } = await supabase
+    const { data: itemDetail, error: detailError } = await supabase
       .from("node_item_details")
       .insert({
         node_id: node.id,
@@ -129,18 +128,26 @@ export async function createNode(
         vendor_id: d.vendorId ?? null,
         purchasing_notes: d.purchasingNotes ?? null,
         specifications: d.specifications ?? null,
-      });
+      })
+      .select()
+      .single();
 
     if (detailError) {
       // Clean up the base node if detail insert fails
       await supabase.from("estimate_nodes").delete().eq("id", node.id);
       return handleSupabaseError(detailError);
     }
+
+    return ok({
+      ...node,
+      node_type: "item" as const,
+      details: itemDetail,
+    } as NodeWithDetails);
   }
 
   if (v.nodeType === "assembly") {
     const d = v.details;
-    const { error: detailError } = await supabase
+    const { data: assemblyDetail, error: detailError } = await supabase
       .from("node_assembly_details")
       .insert({
         node_id: node.id,
@@ -149,16 +156,28 @@ export async function createNode(
         assembly_unit_cost: d.assemblyUnitCost ?? null,
         ratio_base: d.ratioBase ?? null,
         specifications: d.specifications ?? null,
-      });
+      })
+      .select()
+      .single();
 
     if (detailError) {
       await supabase.from("estimate_nodes").delete().eq("id", node.id);
       return handleSupabaseError(detailError);
     }
+
+    return ok({
+      ...node,
+      node_type: "assembly" as const,
+      details: assemblyDetail,
+    } as NodeWithDetails);
   }
 
-  // Re-fetch with details attached
-  return getNode(node.id);
+  // Group nodes have no details
+  return ok({
+    ...node,
+    node_type: "group" as const,
+    details: null,
+  } as NodeWithDetails);
 }
 
 // ── Read (list by estimate) ───────────────────────────────
@@ -294,7 +313,7 @@ export async function updateNode(
   }
   if (v.flagged !== undefined) updates.flagged = v.flagged;
 
-  const { data, error } = await supabase
+  const { data: updatedNode, error } = await supabase
     .from("estimate_nodes")
     .update(updates)
     .eq("id", id)
@@ -303,8 +322,30 @@ export async function updateNode(
 
   if (error) return handleSupabaseError(error);
 
-  // Re-fetch with details attached
-  return getNode(data.id);
+  // Fetch detail row for the updated node type without full getNode() round-trip
+  if (updatedNode.node_type === "item") {
+    const { data: details, error: detailError } = await supabase
+      .from("node_item_details")
+      .select("*")
+      .eq("node_id", id)
+      .single();
+
+    if (detailError) return handleSupabaseError(detailError);
+    return ok({ ...updatedNode, node_type: "item" as const, details } as NodeWithDetails);
+  }
+
+  if (updatedNode.node_type === "assembly") {
+    const { data: details, error: detailError } = await supabase
+      .from("node_assembly_details")
+      .select("*")
+      .eq("node_id", id)
+      .single();
+
+    if (detailError) return handleSupabaseError(detailError);
+    return ok({ ...updatedNode, node_type: "assembly" as const, details } as NodeWithDetails);
+  }
+
+  return ok({ ...updatedNode, node_type: "group" as const, details: null } as NodeWithDetails);
 }
 
 // ── Update item details ────────────────────────────────────
@@ -346,14 +387,35 @@ export async function updateItemDetails(
   if (v.purchasingNotes !== undefined) updates.purchasing_notes = v.purchasingNotes;
   if (v.specifications !== undefined) updates.specifications = v.specifications;
 
-  const { error } = await supabase
+  const { data: updatedDetail, error } = await supabase
     .from("node_item_details")
     .update(updates)
-    .eq("node_id", nodeId);
+    .eq("node_id", nodeId)
+    .select()
+    .single();
 
-  if (error) return handleSupabaseError(error);
+  if (error) {
+    // PGRST116 = "no rows returned" means the detail row doesn't exist
+    if (error.code === "PGRST116") {
+      return notFound("Item details");
+    }
+    return handleSupabaseError(error);
+  }
 
-  return getNode(nodeId);
+  // Fetch the base node to assemble NodeWithDetails without full re-fetch
+  const { data: node, error: nodeError } = await supabase
+    .from("estimate_nodes")
+    .select("*")
+    .eq("id", nodeId)
+    .single();
+
+  if (nodeError) return handleSupabaseError(nodeError);
+
+  return ok({
+    ...node,
+    node_type: "item" as const,
+    details: updatedDetail,
+  } as NodeWithDetails);
 }
 
 // ── Update assembly details ────────────────────────────────
@@ -382,14 +444,34 @@ export async function updateAssemblyDetails(
   if (v.ratioBase !== undefined) updates.ratio_base = v.ratioBase;
   if (v.specifications !== undefined) updates.specifications = v.specifications;
 
-  const { error } = await supabase
+  const { data: updatedDetail, error } = await supabase
     .from("node_assembly_details")
     .update(updates)
-    .eq("node_id", nodeId);
+    .eq("node_id", nodeId)
+    .select()
+    .single();
 
-  if (error) return handleSupabaseError(error);
+  if (error) {
+    if (error.code === "PGRST116") {
+      return notFound("Assembly details");
+    }
+    return handleSupabaseError(error);
+  }
 
-  return getNode(nodeId);
+  // Fetch the base node to assemble NodeWithDetails without full re-fetch
+  const { data: node, error: nodeError } = await supabase
+    .from("estimate_nodes")
+    .select("*")
+    .eq("id", nodeId)
+    .single();
+
+  if (nodeError) return handleSupabaseError(nodeError);
+
+  return ok({
+    ...node,
+    node_type: "assembly" as const,
+    details: updatedDetail,
+  } as NodeWithDetails);
 }
 
 // ── Move node ──────────────────────────────────────────────
@@ -410,7 +492,7 @@ export async function moveNode(
   const v = parsed.data;
 
   // Update parent_id and sort_order; the DB trigger handles ltree path
-  const { data, error } = await supabase
+  const { data: movedNode, error } = await supabase
     .from("estimate_nodes")
     .update({
       parent_id: v.newParentId,
@@ -422,7 +504,30 @@ export async function moveNode(
 
   if (error) return handleSupabaseError(error);
 
-  return getNode(data.id);
+  // Assemble NodeWithDetails from the moved node without re-fetching
+  if (movedNode.node_type === "item") {
+    const { data: details, error: detailError } = await supabase
+      .from("node_item_details")
+      .select("*")
+      .eq("node_id", v.id)
+      .single();
+
+    if (detailError) return handleSupabaseError(detailError);
+    return ok({ ...movedNode, node_type: "item" as const, details } as NodeWithDetails);
+  }
+
+  if (movedNode.node_type === "assembly") {
+    const { data: details, error: detailError } = await supabase
+      .from("node_assembly_details")
+      .select("*")
+      .eq("node_id", v.id)
+      .single();
+
+    if (detailError) return handleSupabaseError(detailError);
+    return ok({ ...movedNode, node_type: "assembly" as const, details } as NodeWithDetails);
+  }
+
+  return ok({ ...movedNode, node_type: "group" as const, details: null } as NodeWithDetails);
 }
 
 // ── Delete ─────────────────────────────────────────────────
@@ -558,7 +663,31 @@ export async function duplicateNode(
     }
   }
 
-  return getNode(newNode.id);
+  // Assemble NodeWithDetails from the new node we already have
+  if (source.node_type === "item" && source.details) {
+    // Detail row was just inserted above — fetch it for accurate IDs
+    const { data: details, error: detailError } = await supabase
+      .from("node_item_details")
+      .select("*")
+      .eq("node_id", newNode.id)
+      .single();
+
+    if (detailError) return handleSupabaseError(detailError);
+    return ok({ ...newNode, node_type: "item" as const, details } as NodeWithDetails);
+  }
+
+  if (source.node_type === "assembly" && source.details) {
+    const { data: details, error: detailError } = await supabase
+      .from("node_assembly_details")
+      .select("*")
+      .eq("node_id", newNode.id)
+      .single();
+
+    if (detailError) return handleSupabaseError(detailError);
+    return ok({ ...newNode, node_type: "assembly" as const, details } as NodeWithDetails);
+  }
+
+  return ok({ ...newNode, node_type: "group" as const, details: null } as NodeWithDetails);
 }
 
 // ── Flag node ──────────────────────────────────────────────
@@ -573,14 +702,39 @@ export async function flagNode(
     return err(ERROR_CODE.VALIDATION_ERROR, "Node ID is required.");
   }
 
-  const { error } = await supabase
+  const { data: flaggedNode, error } = await supabase
     .from("estimate_nodes")
     .update({ flagged })
-    .eq("id", id);
+    .eq("id", id)
+    .select()
+    .single();
 
   if (error) return handleSupabaseError(error);
 
-  return getNode(id);
+  // Assemble NodeWithDetails without re-fetching
+  if (flaggedNode.node_type === "item") {
+    const { data: details, error: detailError } = await supabase
+      .from("node_item_details")
+      .select("*")
+      .eq("node_id", id)
+      .single();
+
+    if (detailError) return handleSupabaseError(detailError);
+    return ok({ ...flaggedNode, node_type: "item" as const, details } as NodeWithDetails);
+  }
+
+  if (flaggedNode.node_type === "assembly") {
+    const { data: details, error: detailError } = await supabase
+      .from("node_assembly_details")
+      .select("*")
+      .eq("node_id", id)
+      .single();
+
+    if (detailError) return handleSupabaseError(detailError);
+    return ok({ ...flaggedNode, node_type: "assembly" as const, details } as NodeWithDetails);
+  }
+
+  return ok({ ...flaggedNode, node_type: "group" as const, details: null } as NodeWithDetails);
 }
 
 // ── Set node visibility ────────────────────────────────────
@@ -602,22 +756,47 @@ export async function setNodeVisibility(
   }
 
   if (applyToChildren) {
-    // Use the set_subtree_visibility RPC
+    // Use the set_subtree_visibility RPC — must re-fetch since RPC returns count only
     const { error } = await supabase.rpc("set_subtree_visibility", {
       p_node_id: id,
       p_visibility: visibility as ClientVisibility,
     });
 
     if (error) return handleSupabaseError(error);
-  } else {
-    // Update only the single node
-    const { error } = await supabase
-      .from("estimate_nodes")
-      .update({ client_visibility: visibility as ClientVisibility })
-      .eq("id", id);
-
-    if (error) return handleSupabaseError(error);
+    return getNode(id);
   }
 
-  return getNode(id);
+  // Update only the single node — return data directly
+  const { data: updatedNode, error } = await supabase
+    .from("estimate_nodes")
+    .update({ client_visibility: visibility as ClientVisibility })
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) return handleSupabaseError(error);
+
+  if (updatedNode.node_type === "item") {
+    const { data: details, error: detailError } = await supabase
+      .from("node_item_details")
+      .select("*")
+      .eq("node_id", id)
+      .single();
+
+    if (detailError) return handleSupabaseError(detailError);
+    return ok({ ...updatedNode, node_type: "item" as const, details } as NodeWithDetails);
+  }
+
+  if (updatedNode.node_type === "assembly") {
+    const { data: details, error: detailError } = await supabase
+      .from("node_assembly_details")
+      .select("*")
+      .eq("node_id", id)
+      .single();
+
+    if (detailError) return handleSupabaseError(detailError);
+    return ok({ ...updatedNode, node_type: "assembly" as const, details } as NodeWithDetails);
+  }
+
+  return ok({ ...updatedNode, node_type: "group" as const, details: null } as NodeWithDetails);
 }

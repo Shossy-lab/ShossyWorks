@@ -23,6 +23,7 @@ export type CreateSnapshotInput = z.infer<typeof createSnapshotSchema>;
 export const restoreSnapshotSchema = z.object({
   snapshotId: uuidSchema,
   estimateVersion: z.number().int().min(1, "Estimate version is required for optimistic locking."),
+  force: z.boolean().default(false),
 });
 
 export type RestoreSnapshotInput = z.infer<typeof restoreSnapshotSchema>;

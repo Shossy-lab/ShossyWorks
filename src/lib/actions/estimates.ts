@@ -6,14 +6,15 @@
 // ────────────────────────────────────────────────────────────
 "use server";
 
-import { ok, err, validationError, optimisticLockFailed } from "@/lib/types/action-result";
-import { ERROR_CODE } from "@/lib/types/action-result";
+import { ok, validationError, optimisticLockFailed } from "@/lib/types/action-result";
 import {
   createEstimateSchema,
   updateEstimateSchema,
   listEstimatesSchema,
   getEstimateSchema,
+  deleteEstimateSchema,
 } from "@/lib/validation/estimates";
+import { uuidSchema } from "@/lib/validation/shared";
 import { formatZodError } from "@/lib/validation/format-error";
 import { getAuthenticatedClient, handleSupabaseError } from "./_shared";
 
@@ -173,15 +174,16 @@ export async function duplicateEstimate(
 ): Promise<ActionResult<string>> {
   const { user, supabase } = await getAuthenticatedClient();
 
-  if (!id) {
-    return err(ERROR_CODE.VALIDATION_ERROR, "Estimate ID is required.");
+  const parsedId = uuidSchema.safeParse(id);
+  if (!parsedId.success) {
+    return validationError("Invalid ID format.", formatZodError(parsedId.error));
   }
   if (!newName || newName.trim().length === 0) {
-    return err(ERROR_CODE.VALIDATION_ERROR, "New estimate name is required.");
+    return validationError("New estimate name is required.");
   }
 
   const { data, error } = await supabase.rpc("deep_copy_estimate", {
-    p_source_estimate_id: id,
+    p_source_estimate_id: parsedId.data,
     p_new_name: newName.trim(),
     p_created_by: user.id,
   });
@@ -197,14 +199,15 @@ export async function deleteEstimate(
 ): Promise<ActionResult<Estimate>> {
   const { supabase } = await getAuthenticatedClient();
 
-  if (!id) {
-    return err(ERROR_CODE.VALIDATION_ERROR, "Estimate ID is required.");
+  const parsed = deleteEstimateSchema.safeParse({ id });
+  if (!parsed.success) {
+    return validationError("Invalid ID format.", formatZodError(parsed.error));
   }
 
   const { data, error } = await supabase
     .from("estimates")
     .delete()
-    .eq("id", id)
+    .eq("id", parsed.data.id)
     .select()
     .single();
 

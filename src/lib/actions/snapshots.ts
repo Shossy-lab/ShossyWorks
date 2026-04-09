@@ -143,19 +143,11 @@ export async function restoreSnapshot(
     {
       p_snapshot_id: v.snapshotId,
       p_restored_by: user.id,
+      p_force: v.force,
     },
   );
 
-  if (error) {
-    // Handle optimistic lock / version mismatch from the RPC
-    if (error.message?.includes("version") || error.message?.includes("modified")) {
-      return err(
-        ERROR_CODE.OPTIMISTIC_LOCK_FAILED,
-        "This estimate was modified since you last loaded it. Please refresh and try again.",
-      );
-    }
-    return handleSupabaseError(error);
-  }
+  if (error) return handleSupabaseError(error);
 
   if (!checkpointId) return err(ERROR_CODE.SERVER_ERROR, "Restore returned no checkpoint ID.");
   return ok(checkpointId);
