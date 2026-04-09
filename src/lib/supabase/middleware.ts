@@ -2,7 +2,7 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 import { env } from "@/env";
 
-const PUBLIC_ROUTES = ["/sign-in", "/sign-up", "/auth/callback"];
+const PUBLIC_ROUTES = ["/sign-in", "/sign-up", "/auth/callback", "/pending-approval"];
 
 function isPublicRoute(pathname: string): boolean {
   return PUBLIC_ROUTES.some((route) => pathname.startsWith(route));
@@ -47,7 +47,26 @@ export async function updateSession(request: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    if (user && isPublic && pathname !== "/auth/callback") {
+    // Pending role enforcement — redirect pending users away from protected routes
+    if (user) {
+      const role = (user.app_metadata?.user_role as string | undefined) ?? "pending";
+      const isPending = role === "pending";
+      const onPendingPage = pathname === "/pending-approval";
+
+      if (isPending && !onPendingPage && !isPublic) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/pending-approval";
+        return NextResponse.redirect(url);
+      }
+
+      if (!isPending && onPendingPage) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/dashboard";
+        return NextResponse.redirect(url);
+      }
+    }
+
+    if (user && isPublic && pathname !== "/auth/callback" && pathname !== "/pending-approval") {
       const url = request.nextUrl.clone();
       url.pathname = "/dashboard";
       return NextResponse.redirect(url);

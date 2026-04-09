@@ -19,6 +19,12 @@ export default async function ProtectedLayout({ children }: { children: React.Re
     redirect("/sign-in");
   }
 
+  // Defense-in-depth: redirect pending users even if middleware missed it
+  const role = (user.app_metadata?.user_role as string | undefined) ?? "pending";
+  if (role === "pending") {
+    redirect("/pending-approval");
+  }
+
   return (
     <div className="flex h-screen">
       <Sidebar />
