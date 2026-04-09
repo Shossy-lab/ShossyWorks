@@ -1,8 +1,8 @@
 # Codebase Map -- ShossyWorks
 
-> **Status:** Pre-development (research/architecture phase)
-> **Last updated:** 2026-04-02
-> **Stack decision:** Next.js + Supabase + Vercel + TypeScript + Tailwind CSS
+> **Status:** Phase 0 + Hardening complete. Phase 1A next.
+> **Last updated:** 2026-04-09
+> **Stack:** Next.js 16.2.2 + Supabase + Vercel + TypeScript (strict) + Tailwind CSS v4
 
 ---
 
@@ -12,7 +12,7 @@ Construction estimating platform for Szostak Build, LLC. Third attempt after two
 
 **Planned core systems:** tree-based estimate hierarchy (adjacency list + ltree), isomorphic calculation engine, assembly system with quantity cascade, catalog (copy-on-instantiate), three-layer options system (broad/inline/option sets), formula engine (math.js), version management with audit trail, vendor management, client-facing filtered view, PDF export.
 
-**No application code exists yet.** The repo contains completed architectural research, Claude Code configuration, and project scaffolding docs.
+**Phase 0 scaffold is deployed and running on Vercel.** Auth flow (sign-in, sign-up, sign-out), protected routes, error boundaries, design token system, and security hardening are complete. ~32 source files, ~1,414 lines of code. Phase 1A (database schema) is next.
 
 ---
 
@@ -134,30 +134,47 @@ Phase 10: Polish & Advanced Features (depends on all above)
 
 ## 4. Database Schema
 
-No schema deployed. The planned schema (~28 tables) is documented in `research/output/01-data-architecture.md`. Key table groups:
+Two migrations deployed. Phase 1A will add 10 more migrations creating 35+ tables.
+
+**Deployed migrations:**
+| Migration | Content |
+|-----------|---------|
+| `00000000000001_auth_roles.sql` | ltree extension, app_role enum, user_roles table, custom_access_token_hook |
+| `20260406000001_security_fixes.sql` | Drop overpermissive RLS, add pending role, handle_new_user trigger, search_path fix |
+
+**Planned tables (Phase 1A, 35+ tables):**
 
 | Group | Tables | Purpose |
 |-------|--------|---------|
-| Core | projects, estimates, estimate_nodes, node_item_details, node_assembly_details | Tree hierarchy + estimate structure |
+| Auth | user_profiles (replaces user_roles) | Roles: owner, employee, client, pending |
+| Core | projects, estimates, estimate_nodes, node_item_details, node_assembly_details, node_notes | Tree hierarchy + estimate structure |
 | Reference | units_of_measure, phases, cost_codes, project_parameters | Lookup data + configuration |
-| Options | option_groups, option_alternatives, node_option_memberships, option_sets, option_set_broad_selections | Three-layer options system |
-| Catalog | catalog_items, catalog_assemblies, catalog_assembly_nodes | Reusable templates |
-| Versions | estimate_versions, estimate_nodes_history | Snapshots + audit trail |
-| Vendors | vendors, vendor_contacts, vendor_pricing | Vendor management |
-| Proposals | proposals | Client-facing documents |
-| Auth/Users | profiles (extends Supabase auth.users) | Roles: owner, employee, client |
+| Settings | company_settings, user_preferences, estimate_view_state | Business defaults + UI state |
+| Options | option_groups, option_alternatives, node_option_memberships, option_sets, broad_options | Three-layer options + toggle type |
+| Catalog | catalog_items, catalog_assemblies | Reusable templates |
+| Snapshots | estimate_snapshots | JSONB-serialized frozen estimate copies |
+| Client | estimate_shares, estimate_comments, estimate_approvals, client_project_access | Client sharing + interaction |
+| History | estimate_nodes_history + others | Trigger-based audit trail |
+| Vendors | vendors, vendor_contacts | Vendor management |
 
 ---
 
 ## 5. API Routes
 
-None yet. Will be established in Phase 0 (scaffolding).
+| Route | Purpose |
+|-------|---------|
+| `src/app/auth/callback/route.ts` | OAuth callback with redirect validation |
+| `src/middleware.ts` | Auth token refresh, protected route enforcement, public route bypass |
 
 ---
 
 ## 6. Design System
 
-Not yet established. Tailwind CSS selected. Design tokens, component library, and UI patterns will be defined during Phase 0/1B.
+Established in Phase 0, documented in `DESIGN-SYSTEM.md`. CSS custom property tokens in `src/app/globals.css` with `@theme` block for Tailwind v4 integration. Design rules:
+- Zero hardcoded styles — all visual properties use `var(--color-*)`, `var(--space-*)` tokens
+- Sharp corners on rectangles (`rounded-none`)
+- Pill shape for buttons (`rounded-full`)
+- Standard Tailwind utilities for font-weight, text-size, duration (not `var()` arbitrary values)
 
 ---
 
@@ -169,7 +186,7 @@ See `CONTRACT-INDEX.md` at repo root. No contracts defined yet -- will be create
 
 ## 8. Refactoring Targets
 
-None. No application code exists to refactor.
+None currently. Auth form deduplication (HIGH-12/13/23 from codebase review) deferred to Phase 1B.
 
 ---
 
@@ -177,10 +194,11 @@ None. No application code exists to refactor.
 
 | Service | Purpose | Status |
 |---------|---------|--------|
-| Supabase | Auth, PostgreSQL database, Realtime, Storage | Planned (Phase 0) |
-| Vercel | Hosting, CI/CD, preview deployments | Planned (Phase 0) |
-| GitHub | Source control, PR workflow | Active (repo exists) |
-| PDF generation | Proposal/PO export | Planned (Phase 8, service TBD) |
+| Supabase | Auth, PostgreSQL, Realtime, Storage | Active (project edpumrranilhipwnvfrq) |
+| Vercel | Hosting, CI/CD, preview deployments | Active (shossy-works.vercel.app) |
+| GitHub | Source control | Active (Shossy-lab/ShossyWorks) |
+| Azure Key Vault | Secret management | Active (shossyworks-vault) |
+| PDF generation | Proposal/PO export | Planned (Phase 2C, service TBD) |
 
 ---
 
@@ -190,4 +208,13 @@ None. No application code exists to refactor.
 |------|--------|-------|
 | 2026-04-02 | Complete architectural research session | 5 deliverables + 3 supplemental + 5 reviews |
 | 2026-04-02 | Claude Code configuration deployed | Rules, hooks, agents, memory, workflows |
-| 2026-04-02 | Addendum: multi-user, auto-promotion, PIN auth | New requirements integrated into architecture |
+| 2026-04-03 | Phase 0: scaffold, auth, app shell, tests, deploy | 25 source files, Vercel deployment |
+| 2026-04-03 | Design system with CSS custom property tokens | DESIGN-SYSTEM.md + globals.css + all components |
+| 2026-04-06 | Weekend session: node_notes decision, interaction planning | Session handoff doc |
+| 2026-04-07 | Hardening H1: security + DB fixes | Open redirect, RLS, search_path, middleware, pending role |
+| 2026-04-07 | Hardening H2: CSS tokens + dependencies | @theme block, font/duration/text fixes, dep upgrades |
+| 2026-04-07 | Hardening H3: error handling + auth UX | 6 error boundaries, auth error mapping, sign-up flow |
+| 2026-04-07 | Hardening H4: testing + performance + a11y | Vitest projects, security headers, focus indicators, skip link |
+| 2026-04-08 | 5 interaction decisions | Lifecycle, node actions, preferences, client experience, search |
+| 2026-04-08 | Deep planning: 26-agent analysis + approved plan v2 | 31 documents, 1,890-line implementation plan |
+| 2026-04-09 | Test generation team: 5 agents writing 82+ test cases | tests/database/ + tests/actions/ |
