@@ -32,9 +32,9 @@ export default async function ProtectedLayout({ children }: { children: React.Re
         <header
           className="flex h-[var(--header-height)] items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface)] px-[var(--space-6)]"
         >
-          <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">
+          <span className="text-lg font-semibold text-[var(--color-text-primary)]">
             ShossyWorks
-          </h2>
+          </span>
           <UserMenu email={user.email ?? ""} />
         </header>
         <main className="flex-1 overflow-y-auto bg-[var(--color-bg-secondary)] p-[var(--space-6)]">

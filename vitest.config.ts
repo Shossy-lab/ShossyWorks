@@ -7,6 +7,7 @@ const sharedConfig = {
   setupFiles: ["./tests/setup.ts"],
   alias: {
     "@": path.resolve(__dirname, "src"),
+    "server-only": path.resolve(__dirname, "tests/helpers/server-only-mock.ts"),
   },
 };
 

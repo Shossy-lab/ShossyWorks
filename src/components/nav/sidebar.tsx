@@ -16,6 +16,7 @@ export function Sidebar() {
 
   return (
     <aside
+      aria-label="Sidebar"
       className={`flex flex-col border-r border-[var(--color-border)] bg-[var(--color-surface)] transition-[width] duration-200 ${
         collapsed ? "w-[var(--sidebar-collapsed)]" : "w-[var(--sidebar-width)]"
       }`}
@@ -36,7 +37,7 @@ export function Sidebar() {
           {collapsed ? "\u203A" : "\u2039"}
         </button>
       </div>
-      <nav className="flex-1 p-[var(--space-2)]">
+      <nav aria-label="Main navigation" className="flex-1 p-[var(--space-2)]">
         <ul className="space-y-[var(--space-1)]">
           {navItems.map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
@@ -50,6 +51,8 @@ export function Sidebar() {
                       : "border-l-2 border-transparent text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)]"
                   }`}
                   title={collapsed ? item.label : undefined}
+                  aria-label={collapsed ? item.label : undefined}
+                  aria-current={isActive ? "page" : undefined}
                 >
                   {!collapsed && item.label}
                 </Link>

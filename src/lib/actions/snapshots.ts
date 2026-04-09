@@ -5,12 +5,11 @@
 // ────────────────────────────────────────────────────────────
 "use server";
 
-import { ok, err, validationError, notFound, forbidden } from "@/lib/types/action-result";
+import { ok, err, validationError, forbidden } from "@/lib/types/action-result";
 import { ERROR_CODE } from "@/lib/types/action-result";
 import { createSnapshotSchema, restoreSnapshotSchema } from "@/lib/validation/snapshots";
 import { formatZodError } from "@/lib/validation/format-error";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { getAuthenticatedClient, handleSupabaseError } from "./_shared";
+import { getAuthenticatedClient, getStaffClient, handleSupabaseError } from "./_shared";
 
 import type { ActionResult } from "@/lib/types/action-result";
 import type { Database } from "@/lib/types/supabase";
@@ -192,49 +191,52 @@ export async function createEstimateFromSnapshot(
   return ok(estimateId);
 }
 
-// ── Delete (milestones only, via admin client) ─────────────
+// ── Delete (milestones only, via RPC) ─────────────────────
 
 export async function deleteSnapshot(
   id: string,
 ): Promise<ActionResult<void>> {
-  const { user, supabase } = await getAuthenticatedClient();
+  // Staff-only action — requireStaff redirects non-staff users (CF-10)
+  const { user, supabase } = await getStaffClient();
 
   if (!id) {
     return err(ERROR_CODE.VALIDATION_ERROR, "Snapshot ID is required.");
   }
 
-  // Fetch snapshot to verify type and ownership
-  const { data: snapshot, error: fetchError } = await supabase
-    .from("estimate_snapshots")
-    .select("id, snapshot_type, created_by")
-    .eq("id", id)
-    .single();
-
-  if (fetchError) return handleSupabaseError(fetchError);
-
-  // Only milestones can be deleted — checkpoints are system-managed
-  if (snapshot.snapshot_type !== "milestone") {
-    return err(
-      ERROR_CODE.FORBIDDEN,
-      "Only milestone snapshots can be deleted. Checkpoints are system-managed.",
-    );
-  }
-
-  // Verify the caller is the owner
-  if (snapshot.created_by !== user.id) {
-    return forbidden();
-  }
-
-  // Use admin client to bypass the immutability trigger
-  const admin = createAdminClient();
-  const { error: deleteError } = await admin
-    .from("estimate_snapshots")
-    .delete()
-    .eq("id", id);
+  // Call the delete_milestone_snapshot RPC which handles:
+  // - Staff authorization (is_staff() check)
+  // - Milestone type verification
+  // - Ownership verification (created_by = p_deleted_by)
+  // - Immutability trigger bypass via SET LOCAL (CF-04-CRIT, CF-06, CF-23)
+  const { error: deleteError } = await supabase.rpc(
+    "delete_milestone_snapshot" as never,
+    {
+      p_snapshot_id: id,
+      p_deleted_by: user.id,
+    } as never,
+  );
 
   if (deleteError) {
-    console.error("Admin delete snapshot error:", deleteError);
-    return err(ERROR_CODE.SERVER_ERROR, "Failed to delete snapshot.");
+    const pgError = deleteError as { message: string; code?: string };
+
+    // Map RPC-raised exceptions to user-friendly errors
+    if (pgError.message?.includes("not a milestone")) {
+      return err(
+        ERROR_CODE.FORBIDDEN,
+        "Only milestone snapshots can be deleted. Checkpoints are system-managed.",
+      );
+    }
+    if (pgError.message?.includes("not owned by caller")) {
+      return forbidden();
+    }
+    if (pgError.message?.includes("not found")) {
+      return err(ERROR_CODE.NOT_FOUND, "Snapshot not found.");
+    }
+    if (pgError.message?.includes("Permission denied")) {
+      return forbidden();
+    }
+
+    return handleSupabaseError(pgError);
   }
 
   return ok();

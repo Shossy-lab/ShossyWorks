@@ -20,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${inter.variable} h-full`}>
       <body className="min-h-full font-sans antialiased">
         <SkipLink />
-        <main id="main-content">{children}</main>
+        <div id="main-content">{children}</div>
       </body>
     </html>
   );
