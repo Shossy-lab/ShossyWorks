@@ -1,0 +1,33 @@
+Estimating Page: Thoughts
+
+Overall:
+- The Main Content is the Estimating Table.
+- The Table Header is sticky/floating. It and everything above it, does not move when the rest of the page scrolls.
+- It is extremely helpful to have Summarizing Panels to reference as i am estimating. Examples:
+  - Project Totals:
+    - Subtotal
+    - Each Markup
+    - Total Price
+- Markups are not fixed. We need to be able to configure what markups are added to each project individually.
+- Id like to be able to enable/disable a "Total Project Scope" Card, within the summary panel. The intent with this is: Most of, but not all of our projects are Design & Build. and a lot of the times, when we are talking to the client about Budgets and Total Costs, We are talking about the Land Cost, Construction Cost, Design Costs, as well as other Consultants, whether they are part of the Design Contract or the Construction Contract. So, Id like to be able to enable/make the panel visible for when i want it, but not ALWAYS have it there. and this is a general rule of thumb for all of the panels. I want to be able to toggle which cards are being shown within the side panel.
+  - The Design Cost needs to be set using Percentages. So, in the Project Configuration Settings, we need to be able to enter all of the values needed, and configure the Total Project Scope Card.
+- Have a horizontal bar chart of some sort that shows the highest value Divisions.
+- In the Estimating Table:
+  - I need to be able to configure which Columns are shown. 
+    - Sometimes, i want to see a bunch of columns in the table, but other times i just want a simple table to be able to quickly move through it. 
+    - maybe even being able to save some preset column visibility configurations would be helpful
+  - The Table Tree/Table Hierarchy needs to be matched by a visual Hierarchy. Since Most Estimates are only going to use 5-6 levels of depth, i think i just want to focus on levels 1-6.
+    - General Idea for this is that we have a max Font Size of 20, and a minimum font size of 8. Level 1 Starts off relatively large, background fill, bold text, etc.. Then, for each hierarchy depth, the deeper it is, the smaller the formatting gets.
+    - Levels 1 & 2 are the Only row levels that get Row Highlighting.
+    - Everything under levels 1 & 2, uses font size, font color, and progressibly smaller/lighter bottom borders, to visually signify the row depth.
+  - The Table need to be a very clean format. the idea is that it does not look like an excel sheet with cell borders everywhere. 
+    - The Row Number, the name/description, and the potential chevron expand/collapse button (which is only shown if the row is a parent) are the only fields that indent based on row hierarachy. all other columns are aligned. 
+      - The row components that indent, are contained within the same container so that they can be indented/shifted, without losing their relative positioning to eachother.
+    - The bottom border of each row is also indented with the row hierarchy. meaning, the bottom border only goes the the left edge of the row number field, not all the way to the left edge of the table.
+  - If a row has an option/is part of an option, we need to use a icon/symbol of some sort to signify it. 
+    - The icon/symbol needs to use a 'bubble-up' effect. for example: if the option exist on a level 4 row, but the parent is collapsed (meaning the level 4 row is not visible) then a different version of the Icon/symbol would be visible on the nearest visible parent row. that way, the user could essentially follow the icon down to the correct row, to find the correct row. 
+- Having the Item Catalog, and the Assembly Catalog easily accessible in the right panel would be very helpful. 
+- again, being able to expand collapse as well as toggle their visibility in the right side panel, like all other things.
+- The Right Side Panel needs to be Configurable, not a set thing. 
+- The Right Side Panel is Sticky/floating, and has its own internal scrolling. If a card needs scrolling, then the card itself is scrollable, without scrolling the rest of the page OR the rest of the cards. 
+- 
